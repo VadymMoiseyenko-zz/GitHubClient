@@ -1,13 +1,19 @@
 package com.example.vadman_pc.githubclient.controller;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.*;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,8 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-
 public class MainActivity extends AppCompatActivity {
 
     private final String LANGUAGE = "java";
@@ -43,7 +47,9 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog pd;
     PaginationAdapter adapter;
     private SwipeRefreshLayout swipeContainer;
-    LinearLayoutManager linearLayoutManager;
+    public static LinearLayoutManager linearLayoutManager;
+
+    private static Context context;
 
     Service apiService;
 
@@ -52,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int PAGE_START = 1;
     private boolean isLoading = false;
     private boolean isLastPage = false;
-    // limiting to 5 for this tutorial, since total pages in actual API is very large. Feel free to modify.
     private int TOTAL_PAGES = 10;
     private int currentPage = PAGE_START;
 
@@ -60,9 +65,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = getApplicationContext();
 
         initViews();
 
+        initFrgments();
+        Log.d("VadmanLog", "swipecontainer");
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         swipeContainer.setColorSchemeResources(android.R.color.holo_orange_dark);
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -74,9 +82,31 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Github Users Refreshed", Toast.LENGTH_SHORT).show();
             }
         });
+        Log.d("VadmanLog", "finish_with_swipe_container");
+
+        loadJSONfromFirstPage();
     }
 
+    private void initFrgments() {
+        Log.d("VadmanLog", "begine init frag");
+        ViewPager viewPager = (ViewPager) findViewById(R.id.view_page);
+        PagerAdapter pagerAdapter = new PagerAdapter(getSupportFragmentManager(), MainActivity.this) {
+        };
+        viewPager.setAdapter(pagerAdapter);
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
+
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            TabLayout.Tab tab = tabLayout.getTabAt(i);
+            tab.setCustomView(pagerAdapter.getTabView(i));
+        }
+        Log.d("VadmanLog", "finish init frag");
+
+}
+
     private void initViews() {
+        Log.d("VadmanLog", "begine init Views");
         mainToolbar = (Toolbar) findViewById(R.id.my_toolBar);
         setSupportActionBar(mainToolbar);
 
@@ -85,8 +115,10 @@ public class MainActivity extends AppCompatActivity {
         pd.setMessage("Fetching Github Users...");
         pd.setCancelable(false);
         pd.show();
-        adapter = new PaginationAdapter(this);
+
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        adapter = new PaginationAdapter(this);
         linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(linearLayoutManager);
 
@@ -94,8 +126,11 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
         recyclerView.smoothScrollToPosition(0);
+        Log.d("VadmanLog", "Finish ini views");
 
-        loadJSONfromFirstPage();
+
+
+
     }
 
 
@@ -107,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             Client client = new Client();
             apiService = Client.getClient().create(Service.class);
             Log.d("VadmanLog", "createClient");
-            Call<ItemResponse> call = apiService.getItems(new String []{LANGUAGE,LOCATION},currentPage);
+            Call<ItemResponse> call = apiService.getItems(new String[]{LANGUAGE, LOCATION}, currentPage);
             Log.d("VadmanLog", "query");
             call.enqueue(new Callback<ItemResponse>() {
                 @Override
@@ -182,8 +217,8 @@ public class MainActivity extends AppCompatActivity {
     private void loadNextPage() {
         Log.d("VadmanTag", "loadNextPage: " + currentPage);
 
-        Call<ItemResponse> call = apiService.getItems(new String []{LANGUAGE,LOCATION},currentPage);
-        call.enqueue(new Callback<ItemResponse>()  {
+        Call<ItemResponse> call = apiService.getItems(new String[]{LANGUAGE, LOCATION}, currentPage);
+        call.enqueue(new Callback<ItemResponse>() {
             @Override
             public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
                 adapter.removeLoadingFooter();
@@ -237,12 +272,58 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-      return true;
+        return true;
     }
 
     @Override
     protected void onPause() {
         super.onStop();
         pd.dismiss();
+    }
+
+
+    class PagerAdapter extends FragmentPagerAdapter {
+        String tabTitles[] = new String[]{"First Tab", "Second Tab"};
+        Context context;
+
+        public PagerAdapter(android.support.v4.app.FragmentManager supportFragmentManager, MainActivity context) {
+            super(supportFragmentManager);
+            this.context = context;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+
+            switch (position) {
+                case 0:
+                    return new BlankFragment();
+
+                case 1:
+                    return new BlankFragment();
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return tabTitles.length;
+        }
+
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return tabTitles[position];
+        }
+
+        public View getTabView(int position) {
+            View tab = LayoutInflater.from(MainActivity.this).inflate(R.layout.custom_tab, null);
+            TextView tv = (TextView) tab.findViewById(R.id.custom_text);
+            tv.setText(tabTitles[position]);
+            return tab;
+        }
+    }
+
+    public static Context getAppContext() {
+        return MainActivity.context;
     }
 }
