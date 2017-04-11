@@ -4,7 +4,9 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.*;
@@ -14,13 +16,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.example.vadman_pc.githubclient.BlankFragment;
 import com.example.vadman_pc.githubclient.PaginationAdapter;
 import com.example.vadman_pc.githubclient.R;
+import com.example.vadman_pc.githubclient.ViewPagerAdapter;
 import com.example.vadman_pc.githubclient.api.Client;
 import com.example.vadman_pc.githubclient.api.Service;
 import com.example.vadman_pc.githubclient.model.Item;
 import com.example.vadman_pc.githubclient.model.ItemResponse;
 import com.example.vadman_pc.githubclient.utils.PaginationScrollListener;
+import com.example.vadman_pc.githubclient.MainFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
 
     private final String LANGUAGE = "java";
     private final String LOCATION = "krakow";
+
+    TabLayout tabLayout;
+    ViewPager viewPager;
+    ViewPagerAdapter viewPagerAdapter;
 
     List<Item> searchList;
 
@@ -104,6 +113,16 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         recyclerView.smoothScrollToPosition(0);
         Log.d("VadmanLog", "Finish ini views");
+
+        //here i work with fragment
+        tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        viewPager = (ViewPager) findViewById(R.id.view_pager);
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter.addFragments(new MainFragment(),"Home");
+        viewPagerAdapter.addFragments(new BlankFragment(),"List");
+        viewPager.setAdapter(viewPagerAdapter);
+        tabLayout.setupWithViewPager(viewPager);
+
 
 
 

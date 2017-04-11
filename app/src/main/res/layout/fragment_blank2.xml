@@ -1,0 +1,30 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             tools:context="com.example.vadman_pc.githubclient.BlankFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+        <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swipeContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    tools:showIn="@layout/activity_main"
+                    android:backgroundTint="#f2f2f2"/>
+
+            <TextView android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/disconnected"
+                      android:text="No internet connection"
+                      android:textStyle="bold"
+                      android:textSize="30sp"/>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+
+
+</FrameLayout>
