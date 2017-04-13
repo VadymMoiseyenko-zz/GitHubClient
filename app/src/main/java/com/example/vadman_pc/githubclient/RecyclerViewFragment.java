@@ -40,8 +40,8 @@ import java.util.List;
 public class RecyclerViewFragment extends Fragment {
 
     Service apiService;
-    public final String LANGUAGE = "java";
-    public final String LOCATION = "krakow";
+    public  String LANGUAGE = "java";
+    public  String LOCATION = "krakow";
     public static final int PAGE_START = 1;
     public boolean isLoading = false;
     public boolean isLastPage = false;
@@ -69,6 +69,12 @@ public class RecyclerViewFragment extends Fragment {
         super.onCreate(savedInstanceState);
         getActivity();
 
+
+    }
+
+    public void updateInfo(String location, String language) {
+        LOCATION = location;
+        LANGUAGE = language;
 
     }
 
@@ -138,10 +144,7 @@ public class RecyclerViewFragment extends Fragment {
 
             @Override
             public void onRefresh() {
-                currentPage = 1;
-                mAdapter.clear();
-                loadJSONfromFirstPage();
-                Toast.makeText(getActivity(), "Github Users Refreshed", Toast.LENGTH_SHORT).show();
+                refreshItems();
             }
         });
         Log.d("VadmanLog", "finish_with_swipe_container");
@@ -149,6 +152,12 @@ public class RecyclerViewFragment extends Fragment {
         return rootView;
     }
 
+    public void refreshItems() {
+        currentPage = 1;
+        mAdapter.clear();
+        loadJSONfromFirstPage();
+        Toast.makeText(getActivity(), "Github Users Refreshed", Toast.LENGTH_SHORT).show();
+    }
 
 
     private PaginationScrollListener getPaginationScrollListener(LinearLayoutManager linearLayoutManager) {

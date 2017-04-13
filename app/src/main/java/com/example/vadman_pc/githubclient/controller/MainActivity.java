@@ -1,6 +1,7 @@
 package com.example.vadman_pc.githubclient.controller;
 
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
@@ -10,13 +11,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import com.example.vadman_pc.githubclient.MainFragment;
 import com.example.vadman_pc.githubclient.R;
 import com.example.vadman_pc.githubclient.RecyclerViewFragment;
 import com.example.vadman_pc.githubclient.ViewPagerAdapter;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainFragment.OnNameSetListener {
 
 
     TabLayout tabLayout;
@@ -24,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
     ViewPagerAdapter viewPagerAdapter;
 
     RecyclerViewFragment recyclerViewFragment;
+    MainFragment mainFragment;
+    FloatingActionButton fab;
     boolean isFirst;
 
 //    List<Item> searchList;
@@ -41,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     Toolbar mainToolbar;
     private String textForSearching;
+    int tempPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +70,18 @@ public class MainActivity extends AppCompatActivity {
         mainToolbar = (Toolbar) findViewById(R.id.my_toolBar);
         setSupportActionBar(mainToolbar);
 
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tempPosition == 0) {
+                    mainFragment.onSearch();
+                }
+
+            }
+        });
+
 
         Log.d("VadmanLog", "Finish ini views");
 
@@ -76,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d("VadmanTag 1", "viewPager" + viewPager);
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.addFragments(new MainFragment(), "Home");
+        mainFragment = new MainFragment();
+        viewPagerAdapter.addFragments(mainFragment, "Home");
 
         recyclerViewFragment = new RecyclerViewFragment();
 
@@ -86,6 +104,44 @@ public class MainActivity extends AppCompatActivity {
         viewPagerAdapter.addFragments(recyclerViewFragment, "List");
 
 
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//                Toast.makeText(getApplication(), "onPageScrolled" + position, LENGTH_SHORT).show();
+                if (tempPosition == 1) {
+                    mainFragment.onSearch();
+                }
+                Log.d("VadmanTagPageScrolled", "position " + position +" positionOffset " + positionOffset + " positionOffsetPixels" + positionOffsetPixels);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                tempPosition = position;
+                if (tempPosition == 1) {
+//                    fab.hide();
+                } else {
+                    fab.show();
+                }
+//                Toast.makeText(getApplication(), "onPageSelected" + position, LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+//                Toast.makeText(getApplication(), "onPageScrollStateChanged" + state, LENGTH_SHORT).show();
+                if (tempPosition == 1) {
+                    if (state == 1) {
+                        fab.show();
+                    } else {
+                        fab.hide();
+                    }
+
+                }
+                Log.d("VadmanTagPageScrolled", "state " + state);
+
+            }
+        });
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
 
@@ -127,6 +183,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         textForSearching = savedInstanceState.getString("key");
+
+    }
+
+    @Override
+    public void setInfoForSearch(String location, String language) {
+//        RecyclerViewFragment recyclerViewFragment = getFragmentManager().findFragmentById(R.id.recyclerView);
+        recyclerViewFragment.updateInfo(location,language);
+        recyclerViewFragment.refreshItems();
+        viewPager.setCurrentItem(1,true);
 
     }
 }

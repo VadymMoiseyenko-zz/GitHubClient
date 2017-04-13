@@ -1,59 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:orientation="vertical"
-        tools:context=".controller.MainActivity">
-    
-    <android.support.design.widget.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-        <include
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                layout="@layout/toolbar_layout"/>
-        <android.support.design.widget.TabLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/tabLayout"
-                app:tabMode="fixed"
-                app:tabGravity="fill">
-
-        </android.support.design.widget.TabLayout>
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.view.ViewPager
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/view_pager">
-
-    </android.support.v4.view.ViewPager>
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!--android:orientation="vertical"-->
+    <!--tools:context=".controller.MainActivity">-->
 
 
-
-
-    <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipeContainer"
+    <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_height="match_parent"
+
+        <android.support.design.widget.FloatingActionButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center"
+                android:layout_margin="12dp"
+                app:fabSize="normal"
+                android:src="@drawable/ic_search_black_24dp"
+                android:id="@+id/fab"/>
+
+
+        <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
-                tools:showIn="@layout/activity_main"
-                android:backgroundTint="#f2f2f2"/>
+                android:layout_height="wrap_content"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <TextView android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:id="@+id/disconnected"
-                  android:text="No internet connection"
-                  android:textStyle="bold"
-                  android:textSize="30sp"/>
+            <include
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    layout="@layout/toolbar_layout"/>
+            <android.support.design.widget.TabLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/tabLayout"
+                    app:tabMode="fixed"
+                    app:tabGravity="fill">
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+            </android.support.design.widget.TabLayout>
+        </android.support.design.widget.AppBarLayout>
 
-</LinearLayout>
+        <android.support.v4.view.ViewPager
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/view_pager">
+
+        </android.support.v4.view.ViewPager>
+
+
+        <!--<android.support.v4.widget.SwipeRefreshLayout-->
+        <!--android:id="@+id/swipeContainer"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent">-->
+        <!--<android.support.v7.widget.RecyclerView-->
+        <!--android:id="@+id/recyclerView"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_width="match_parent"-->
+        <!--tools:showIn="@layout/activity_main"-->
+        <!--android:backgroundTint="#f2f2f2"/>-->
+
+        <!--<TextView android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/disconnected"-->
+        <!--android:text="No internet connection"-->
+        <!--android:textStyle="bold"-->
+        <!--android:textSize="30sp"/>-->
+
+        <!--</android.support.v4.widget.SwipeRefreshLayout>-->
+
+
+    </android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>
