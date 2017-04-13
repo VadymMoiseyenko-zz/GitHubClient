@@ -158,7 +158,7 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return items.get(position);
     }
 
-    public void  setFilter(ArrayList<Item> newList) {
+    public void  setFilter(List<Item> newList) {
 
         items = new ArrayList<>();
         items.addAll(newList);
@@ -203,4 +203,6 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             Log.d("VadmanLog", "inside LoadingViewHolder ");
         }
     }
+
+
 }

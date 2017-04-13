@@ -2,8 +2,11 @@ package com.example.vadman_pc.githubclient;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -20,10 +23,14 @@ import com.example.vadman_pc.githubclient.api.Service;
 import com.example.vadman_pc.githubclient.model.Item;
 import com.example.vadman_pc.githubclient.model.ItemResponse;
 import com.example.vadman_pc.githubclient.utils.PaginationScrollListener;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -40,6 +47,8 @@ public class RecyclerViewFragment extends Fragment {
     public boolean isLastPage = false;
     public int TOTAL_PAGES = 10;
     public int currentPage = PAGE_START;
+
+    public String tag = getTag();
 
     TextView diconected;
 
@@ -58,8 +67,42 @@ public class RecyclerViewFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //сюда треба підгрузити запрос до бд
+        getActivity();
+
+
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadJSONfromFirstPage();
+
+
+    }
+
+    @Override
+    public void onResume() {
+        Log.d("VadmanTag 1", " jsonSearchLisugut3333333333333");
+        searchList = loadSharedPreferences();
+        Log.d("VadmanTag 1", " searchList" + searchList);
+        super.onResume();
+    }
+
+    public  List<Item> loadSharedPreferences() {
+            List<Item> savedList;
+            SharedPreferences pref2 = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            Gson gson = new Gson();
+            String json = pref2.getString("Key", "");
+            if (json.isEmpty()) {
+                savedList = new ArrayList<Item>();
+            } else {
+                Type type = new TypeToken<List<Item>>() {
+                }.getType();
+                savedList = gson.fromJson(json, type);
+            }
+            return savedList;
+        }
+
 
 
 
@@ -67,6 +110,8 @@ public class RecyclerViewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+
         View rootView = inflater.inflate(R.layout.fragment_blank2, container, false);
         rootView.setTag(TAG);
         pd = new ProgressDialog(getActivity());
@@ -100,9 +145,11 @@ public class RecyclerViewFragment extends Fragment {
             }
         });
         Log.d("VadmanLog", "finish_with_swipe_container");
-        loadJSONfromFirstPage();
+
         return rootView;
     }
+
+
 
     private PaginationScrollListener getPaginationScrollListener(LinearLayoutManager linearLayoutManager) {
         return new PaginationScrollListener(linearLayoutManager) {
@@ -156,7 +203,7 @@ public class RecyclerViewFragment extends Fragment {
                     mRecyclerView.smoothScrollToPosition(0);
                     swipeContainer.setRefreshing(false);
                     searchList = items;
-                    mAdapter.addAll(items);
+                    mAdapter.addAll(searchList);
 
                     if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
                     else isLastPage = true;
@@ -193,7 +240,8 @@ public class RecyclerViewFragment extends Fragment {
                 isLoading = false;
 
                 List<Item> items = response.body().getItems();
-                mAdapter.addAll(items);
+                searchList = items;
+                mAdapter.addAll(searchList);
 
                 if (currentPage != TOTAL_PAGES) mAdapter.addLoadingFooter();
                 else isLastPage = true;
@@ -206,6 +254,58 @@ public class RecyclerViewFragment extends Fragment {
             }
         });
     }
+
+    public void searchingItems(String newText) {
+        newText = newText.toLowerCase();
+        List<Item> newList = new ArrayList<Item>();
+        Log.d("VadmanTag 1", " searchList" + searchList);
+
+        for (Item item1 : searchList) {
+            String name = item1.getLogin().toLowerCase();
+
+            if (name.contains(newText)) {
+                newList.add(item1);
+            }
+
+
+        }
+        mAdapter.setFilter(newList);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        pd.dismiss();
+        Log.d("VadmanTag 1", "inside on Pause");
+
+        saveOnSharedPreference();
+
+
+    }
+
+    private void saveOnSharedPreference() {
+        String key = "Key";
+        SharedPreferences mPrefs = this.getActivity().getSharedPreferences("MyPREFERENCES", Context.MODE_PRIVATE);
+//        SharedPreferences pref2 = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences.Editor editor= mPrefs.edit();
+        Gson gson = new Gson();
+        List<Item> savedSearchList=searchList;
+        Log.d("VadmanTag 1", "inside on SaveSHPref");
+
+        String jsonSearchList = gson.toJson(savedSearchList);
+        Log.d("VadmanTag 1", " jsonSearchList" + jsonSearchList);
+
+//        editor = mPrefs.edit();
+//        editor.remove(key).apply();
+        editor.putString(key, jsonSearchList);
+        Log.d("VadmanTag 1", " jsonSearchList");
+        editor.apply();
+    }
+
+
+
+
+
 
 }
 

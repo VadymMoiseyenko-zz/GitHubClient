@@ -3,14 +3,14 @@ package com.example.vadman_pc.githubclient;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.ArrayList;
 
 /**
  * Created by Vadman_PC on 11.04.2017.
  */
-public class ViewPagerAdapter extends FragmentPagerAdapter {
+public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     ArrayList<Fragment> fragments = new ArrayList<>();
     ArrayList<String> tabTitles = new ArrayList<>();
@@ -21,12 +21,15 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     }
 
+
+
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
     @Override
     public Fragment getItem(int position) {
+
         return fragments.get(position);
     }
 
@@ -37,6 +40,22 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
+
         return tabTitles.get(position);
     }
+
+//    @Override
+//    public Object instantiateItem(ViewGroup container, int position) {
+//        Fragment fragment = fragments.get(position);
+//
+//        if (fragment != null) {
+//            return fragment;
+//        } else {
+//
+//            return  super.instantiateItem(container, position);
+//
+//        }
+//    }
+
+
 }
