@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import com.example.vadman_pc.githubclient.MainFragment;
 import com.example.vadman_pc.githubclient.R;
 import com.example.vadman_pc.githubclient.RecyclerViewFragment;
@@ -60,6 +61,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
 
 
         initViews();
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+//        View view = this.getCurrentFocus();
+//        if (view != null) {
+//            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+//            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+//        }
 
 
     }

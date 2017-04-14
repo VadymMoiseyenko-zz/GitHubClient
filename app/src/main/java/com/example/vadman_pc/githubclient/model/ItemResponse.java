@@ -1,6 +1,5 @@
 package com.example.vadman_pc.githubclient.model;
 
-import android.util.Log;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -37,13 +36,12 @@ public class ItemResponse {
     }
 
     public List<Item> getItems() {
-        Log.d("VadmanLog", "geting Items from Item Response");
         return items;
     }
 
     public void setItems(List<Item> items) {
         this.items = items;
     }
-
 }
+
 

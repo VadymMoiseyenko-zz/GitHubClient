@@ -4,7 +4,8 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+>
     <!--android:orientation="vertical"-->
     <!--tools:context=".controller.MainActivity">-->
 
@@ -22,8 +23,13 @@
                 android:src="@drawable/ic_search_black_24dp"
                 android:id="@+id/fab"/>
 
+            <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
 
         <android.support.design.widget.AppBarLayout
+                android:id="@+id/allAppBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
@@ -37,7 +43,8 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/tabLayout"
                     app:tabMode="fixed"
-                    app:tabGravity="fill">
+                    app:tabGravity="fill"
+                    >
 
             </android.support.design.widget.TabLayout>
         </android.support.design.widget.AppBarLayout>
@@ -45,7 +52,9 @@
         <android.support.v4.view.ViewPager
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/view_pager">
+                android:id="@+id/view_pager"
+                android:layout_below="@+id/allAppBar"
+                >
 
         </android.support.v4.view.ViewPager>
 
@@ -70,6 +79,6 @@
 
         <!--</android.support.v4.widget.SwipeRefreshLayout>-->
 
-
+            </RelativeLayout>
     </android.support.design.widget.CoordinatorLayout>
 </RelativeLayout>

@@ -39,9 +39,10 @@ import java.util.List;
  */
 public class RecyclerViewFragment extends Fragment {
 
+    private static final int PER_PAGE = 20;
     Service apiService;
-    public  String LANGUAGE = "java";
-    public  String LOCATION = "krakow";
+    public String LANGUAGE = "java";
+    public String LOCATION = "krakow";
     public static final int PAGE_START = 1;
     public boolean isLoading = false;
     public boolean isLastPage = false;
@@ -49,6 +50,7 @@ public class RecyclerViewFragment extends Fragment {
     public int currentPage = PAGE_START;
 
     public String tag = getTag();
+    public String SEARCH_BY_NAME;
 
     TextView diconected;
 
@@ -94,22 +96,20 @@ public class RecyclerViewFragment extends Fragment {
         super.onResume();
     }
 
-    public  List<Item> loadSharedPreferences() {
-            List<Item> savedList;
-            SharedPreferences pref2 = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            Gson gson = new Gson();
-            String json = pref2.getString("Key", "");
-            if (json.isEmpty()) {
-                savedList = new ArrayList<Item>();
-            } else {
-                Type type = new TypeToken<List<Item>>() {
-                }.getType();
-                savedList = gson.fromJson(json, type);
-            }
-            return savedList;
+    public List<Item> loadSharedPreferences() {
+        List<Item> savedList;
+        SharedPreferences pref2 = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Gson gson = new Gson();
+        String json = pref2.getString("Key", "");
+        if (json.isEmpty()) {
+            savedList = new ArrayList<Item>();
+        } else {
+            Type type = new TypeToken<List<Item>>() {
+            }.getType();
+            savedList = gson.fromJson(json, type);
         }
-
-
+        return savedList;
+    }
 
 
     @Override
@@ -153,7 +153,7 @@ public class RecyclerViewFragment extends Fragment {
     }
 
     public void refreshItems() {
-        currentPage = 1;
+        currentPage = PAGE_START;
         mAdapter.clear();
         loadJSONfromFirstPage();
         Toast.makeText(getActivity(), "Github Users Refreshed", Toast.LENGTH_SHORT).show();
@@ -201,22 +201,30 @@ public class RecyclerViewFragment extends Fragment {
             Client client = new Client();
             apiService = Client.getClient().create(Service.class);
             Log.d("VadmanLog", "createClient");
-            Call<ItemResponse> call = apiService.getItems(new String[]{LANGUAGE, LOCATION}, currentPage);
+            Call<ItemResponse> call = apiService.getItems(new String[]{LANGUAGE, LOCATION}, currentPage, PER_PAGE);
             Log.d("VadmanLog", "query");
             call.enqueue(new Callback<ItemResponse>() {
                 @Override
                 public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
                     Log.d("VadmanLog", "response");
-                    List<Item> items = response.body().getItems();
-                    mRecyclerView.addOnScrollListener(getPaginationScrollListener(linearLayoutManager));
-                    mRecyclerView.smoothScrollToPosition(0);
-                    swipeContainer.setRefreshing(false);
-                    searchList = items;
-                    mAdapter.addAll(searchList);
 
-                    if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
-                    else isLastPage = true;
-                    pd.hide();
+                    if (response.body() != null) {
+                        List<Item> items = response.body().getItems();
+                        mRecyclerView.addOnScrollListener(getPaginationScrollListener(linearLayoutManager));
+                        mRecyclerView.smoothScrollToPosition(0);
+                        swipeContainer.setRefreshing(false);
+                        searchList = items;
+                        mAdapter.addAll(searchList);
+
+                        if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
+                        else isLastPage = true;
+                        pd.hide();
+
+                    } else {
+                        Toast.makeText(getActivity(), "Error body response loadJSONfromFirstPage", Toast.LENGTH_SHORT).show();
+                    }
+
+
 
 
                 }
@@ -227,6 +235,7 @@ public class RecyclerViewFragment extends Fragment {
                     Toast.makeText(getActivity(), "Error Fetching Data!", Toast.LENGTH_SHORT).show();
                     diconected.setVisibility(View.VISIBLE);
                     pd.hide();
+                    Log.d("VadmanTagJSON", "loadJSONfromFirstPage: onFailure");
 
 
                 }
@@ -234,52 +243,130 @@ public class RecyclerViewFragment extends Fragment {
 
         } catch (Exception e) {
             Log.d("Error", e.getMessage());
-            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+            Log.d("VadmanTagJSON", "loadJSONfromFirstPage: BOOM");
         }
+    }
+
+    public void loadNextPage() {
+        Log.d("VadmanTagJSON", "loadNextPage: " + currentPage);
+
+        try {
+            Call<ItemResponse> call = apiService.getItems(new String[]{LANGUAGE, LOCATION}, currentPage, PER_PAGE);
+            call.enqueue(new Callback<ItemResponse>() {
+                @Override
+                public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
+                    mAdapter.removeLoadingFooter();
+                    isLoading = false;
+
+
+                    if (response.body() != null) {
+                        List<Item> items = response.body().getItems();
+                        searchList = items;
+                        mAdapter.addAll(searchList);
+                    } else {
+                        Toast.makeText(getActivity(), "Error body response loadNextPage", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (currentPage != TOTAL_PAGES) mAdapter.addLoadingFooter();
+                    else isLastPage = true;
+                }
+
+                @Override
+                public void onFailure(Call<ItemResponse> call, Throwable t) {
+                    t.printStackTrace();
+                    Log.d("VadmanTagJSON", "loadNextPage onFailure");
+
+                    // TODO: 08/11/16 handle failure
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("VadmanTagJSON", "loadNextPage: BOOM");
         }
-
-    public void loadNextPage(){
-        Log.d("VadmanTag", "loadNextPage: " + currentPage);
-
-        Call<ItemResponse> call = apiService.getItems(new String[]{LANGUAGE, LOCATION}, currentPage);
-        call.enqueue(new Callback<ItemResponse>() {
-            @Override
-            public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
-                mAdapter.removeLoadingFooter();
-                isLoading = false;
-
-                List<Item> items = response.body().getItems();
-                searchList = items;
-                mAdapter.addAll(searchList);
-
-                if (currentPage != TOTAL_PAGES) mAdapter.addLoadingFooter();
-                else isLastPage = true;
-            }
-
-            @Override
-            public void onFailure(Call<ItemResponse> call, Throwable t) {
-                t.printStackTrace();
-                // TODO: 08/11/16 handle failure
-            }
-        });
     }
 
     public void searchingItems(String newText) {
         newText = newText.toLowerCase();
-        List<Item> newList = new ArrayList<Item>();
+//        List<Item> newList = new ArrayList<Item>();
         Log.d("VadmanTag 1", " searchList" + searchList);
 
-        for (Item item1 : searchList) {
-            String name = item1.getLogin().toLowerCase();
+//        for (Item item1 : searchList) {
+//            String name = item1.getLogin().toLowerCase();
+//
+//            if (name.contains(newText)) {
+//                newList.add(item1);
+//            }java
+//
+//
+//        }
+//        newList = searchingRequest(newText);
+//        mAdapter.setFilter(newList);
 
-            if (name.contains(newText)) {
-                newList.add(item1);
-            }
-
-
+        if (newText == null) {
+            newText = "vad";
         }
-        mAdapter.setFilter(newList);
+        SEARCH_BY_NAME = newText;
+
+
+        try {
+            Call<ItemResponse> call = apiService.getItemsWithName(SEARCH_BY_NAME, new String[]{LANGUAGE, LOCATION}, currentPage, PER_PAGE);
+            Log.d("VadmanTagJSON", "call ");
+            call.enqueue(new Callback<ItemResponse>() {
+                @Override
+                public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
+
+
+                    Log.d("VadmanTagJSON", "response " + response);
+
+                    if (response.body() != null) {
+                        List<Item> items = response.body().getItems();
+                        searchList = items;
+                        mAdapter.setFilter(searchList);
+                    } else {
+                        Toast.makeText(getActivity(), "Error body response loadNextPage", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ItemResponse> call, Throwable t) {
+                    t.printStackTrace();
+                    Log.d("VadmanTagJSON", "loadNextPage: onFailure");
+                    // TODO: 08/11/16 handle failure
+                }
+            });
+        } catch (Exception e) {
+            Log.d("VadmanTagJSON", "searchingItems: BOOM");
+            e.printStackTrace();
+        }
+
     }
+
+//    private List<Item> searchingRequest(String newText) {
+//
+//        if (newText == null) {
+//            newText = "vad";
+//        }
+//        SEARCH_BY_NAME = newText;
+//        Call<ItemResponse> call = apiService.getItemsWithName(SEARCH_BY_NAME, new String[]{LANGUAGE, LOCATION}, currentPage, PER_PAGE);
+//        Log.d("VadmanTagJSON", "call ");
+//        call.enqueue(new Callback<ItemResponse>() {
+//            @Override
+//            public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
+//
+//
+//                Log.d("VadmanTagJSON", "response " + response);
+//                List<Item> items = response.body().getItems();
+//                searchList = items;
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ItemResponse> call, Throwable t) {
+//                t.printStackTrace();
+//                // TODO: 08/11/16 handle failure
+//            }
+//        });
+//        return searchList;
+//    }
 
     @Override
     public void onPause() {
@@ -296,9 +383,9 @@ public class RecyclerViewFragment extends Fragment {
         String key = "Key";
         SharedPreferences mPrefs = this.getActivity().getSharedPreferences("MyPREFERENCES", Context.MODE_PRIVATE);
 //        SharedPreferences pref2 = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        SharedPreferences.Editor editor= mPrefs.edit();
+        SharedPreferences.Editor editor = mPrefs.edit();
         Gson gson = new Gson();
-        List<Item> savedSearchList=searchList;
+        List<Item> savedSearchList = searchList;
         Log.d("VadmanTag 1", "inside on SaveSHPref");
 
         String jsonSearchList = gson.toJson(savedSearchList);
@@ -310,10 +397,6 @@ public class RecyclerViewFragment extends Fragment {
         Log.d("VadmanTag 1", " jsonSearchList");
         editor.apply();
     }
-
-
-
-
 
 
 }
