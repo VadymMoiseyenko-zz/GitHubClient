@@ -4,6 +4,7 @@ package com.example.vadman_pc.githubclient;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
@@ -56,6 +57,25 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 //
 //        }
 //    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        Object aux = super.instantiateItem(container, position);
+        Fragment fragmentTemp = fragments.get(position);
+
+        //Update the references to the Fragments we have on the view pager
+        if(position==0){
+            fragmentTemp = (MainFragment)aux;
+            fragments.set(position, fragmentTemp);
+        }
+        else{
+            fragmentTemp = (RecyclerViewFragment) aux;
+            fragments.set(position, fragmentTemp);
+        }
+
+
+        return aux;
+    }
 
 
 }

@@ -26,24 +26,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
     ViewPager viewPager;
     ViewPagerAdapter viewPagerAdapter;
 
-    RecyclerViewFragment recyclerViewFragment;
-    MainFragment mainFragment;
     FloatingActionButton fab;
     boolean isFirst;
-
-//    List<Item> searchList;
-
-//    private RecyclerView recyclerView;
-//    TextView diconected;
-//    private Item item;
-//    ProgressDialog pd;
-//    PaginationAdapter adapter;
-//    private SwipeRefreshLayout swipeContainer;
-//    public static LinearLayoutManager linearLayoutManager;
-
-//    private static Context context;
-
-
     Toolbar mainToolbar;
     private String textForSearching;
     int tempPosition;
@@ -52,72 +36,36 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        context = getApplicationContext();
-        Log.d("VadmanTag 1", "activity_main OnCreate");
-
-        if (savedInstanceState != null) {
-            isFirst = false;
-        }
-
 
         initViews();
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-//        View view = this.getCurrentFocus();
-//        if (view != null) {
-//            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-//            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-//        }
-
-
     }
 
 
     private void initViews() {
-        Log.d("VadmanLog", "begine init Views");
         mainToolbar = (Toolbar) findViewById(R.id.my_toolBar);
         setSupportActionBar(mainToolbar);
-
         fab = (FloatingActionButton) findViewById(R.id.fab);
-
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (tempPosition == 0) {
-                    mainFragment.onSearch();
-                }
-
-            }
-        });
-
-
-        Log.d("VadmanLog", "Finish ini views");
-
-
-        //here i work with fragment
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
-        Log.d("VadmanTag 1", "tabLayout" + tabLayout);
-        Log.d("VadmanTag 1", "viewPager" + viewPager);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN); //it hide soft   Keyboard when  app start
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        mainFragment = new MainFragment();
-        viewPagerAdapter.addFragments(mainFragment, "Home");
 
-        recyclerViewFragment = new RecyclerViewFragment();
-
-        Log.d("VadmanTagHash", "recyclerViewFragment" + recyclerViewFragment.hashCode());
-
-
-        viewPagerAdapter.addFragments(recyclerViewFragment, "List");
+        viewPagerAdapter.addFragments(new MainFragment(), "Home");
 
 
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPagerAdapter.addFragments(new RecyclerViewFragment(), "List");
+
+
+
+                viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 //                Toast.makeText(getApplication(), "onPageScrolled" + position, LENGTH_SHORT).show();
                 if (tempPosition == 1) {
-                    mainFragment.onSearch();
+                    ((MainFragment)viewPagerAdapter.getItem(0)).onSearch();
                 }
                 Log.d("VadmanTagPageScrolled", "position " + position +" positionOffset " + positionOffset + " positionOffsetPixels" + positionOffsetPixels);
             }
@@ -126,32 +74,27 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
             public void onPageSelected(int position) {
                 tempPosition = position;
                 if (tempPosition == 1) {
-//                    fab.hide();
+                    fab.hide();
                 } else {
                     fab.show();
                 }
-//                Toast.makeText(getApplication(), "onPageSelected" + position, LENGTH_SHORT).show();
-
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-//                Toast.makeText(getApplication(), "onPageScrollStateChanged" + state, LENGTH_SHORT).show();
-                if (tempPosition == 1) {
-                    if (state == 1) {
-                        fab.show();
-                    } else {
-                        fab.hide();
-                    }
-
-                }
-                Log.d("VadmanTagPageScrolled", "state " + state);
-
             }
         });
         viewPager.setAdapter(viewPagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
 
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (tempPosition == 0) {
+                    ((MainFragment)viewPagerAdapter.getItem(0)).onSearch();
+                }
+            }
+        });
 
     }
 
@@ -170,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
             @Override
             public boolean onQueryTextChange(String newText) {
                 textForSearching = newText;
-                recyclerViewFragment.searchingItems(textForSearching);
+                ((RecyclerViewFragment)viewPagerAdapter.getItem(1)).searchingItems(textForSearching);
 
                 return true;
             }
@@ -178,27 +121,20 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
         return true;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
 
-        outState.putString("key", textForSearching);
-
-    }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        textForSearching = savedInstanceState.getString("key");
-
+    protected void onRestart() {
+        super.onRestart();
+        viewPager.setCurrentItem(1,true);
     }
+
+
 
     @Override
     public void setInfoForSearch(String location, String language) {
-//        RecyclerViewFragment recyclerViewFragment = getFragmentManager().findFragmentById(R.id.recyclerView);
-        recyclerViewFragment.updateInfo(location,language);
-        recyclerViewFragment.refreshItems();
+        ((RecyclerViewFragment)viewPagerAdapter.getItem(1)).updateInfo(location,language);
+        ((RecyclerViewFragment)viewPagerAdapter.getItem(1)).refreshItems();
         viewPager.setCurrentItem(1,true);
-
     }
 }
