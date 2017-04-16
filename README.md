@@ -1,7 +1,7 @@
 # GitHubClient
 Simple Git Hub Client.
 
-It's very simple, which i create for myself, just for learning.
+It's very simple, which I create for myself, just for learning.
 Main goal is work with open API and using external Android Libraries.
 Here you can enter your programing language and location, and then specify searching by entering name in search bar.
 
@@ -14,5 +14,6 @@ RecyclerView, Pagination, Refresh layout, JSON parsing with Retrofit 2, load ima
 Search bar with request to the server, Explicit and Implicit intents, Create fragments with tabs, Comunication between fragments
 Creating float action button and Creating clickable link with Linkify.
 
+Link to .apk https://www.dropbox.com/s/zxa8tgj2u9gmrmu/GitHubProject.zip?dl=0
 
 
