@@ -15,11 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.vadman_pc.githubclient.api.Client;
 import com.example.vadman_pc.githubclient.api.Service;
 import com.example.vadman_pc.githubclient.model.Item;
 import com.example.vadman_pc.githubclient.model.ItemResponse;
 import com.example.vadman_pc.githubclient.utils.PaginationScrollListener;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,6 +33,8 @@ import java.util.List;
  * A simple {@link Fragment} subclass.
  */
 public class RecyclerViewFragment extends Fragment {
+
+    private static final String TAG = RecyclerViewFragment.class.getSimpleName();
 
     private static final int PER_PAGE = 20; //constant value how much json we will receive
     private static final int PAGE_START = 1; //constant value where will be our first request
@@ -54,16 +58,7 @@ public class RecyclerViewFragment extends Fragment {
     private PaginationAdapter mAdapter; // adapter for recycle view
     private SwipeRefreshLayout swipeContainer;
 
-    private ProgressDialog pd;
-
-
-    @Override
-    public void onResume() {
-        Log.d("VadmanTag 1", " jsonSearchLisugut3333333333333");
-
-        Log.d("VadmanTag 1", " searchList" + searchList);
-        super.onResume();
-    }
+    private ProgressDialog progressDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,9 +69,7 @@ public class RecyclerViewFragment extends Fragment {
         diconected = (TextView) rootView.findViewById(R.id.disconnected);
 
         setupProgresBar();
-
         setupRecyclerView(rootView);
-
         setupSwipeContainer(rootView);
 
         loadJSONfromFirstPage();
@@ -87,11 +80,7 @@ public class RecyclerViewFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        pd.dismiss();
-
-//        saveOnSharedPreference();
-
-
+        progressDialog.dismiss();
     }
 
     @Override
@@ -111,10 +100,10 @@ public class RecyclerViewFragment extends Fragment {
     }
 
     public void setupProgresBar() {
-        pd = new ProgressDialog(getActivity());
-        pd.setMessage("Fetching Github Users...");
-        pd.setCancelable(false);
-        pd.show();
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Fetching Github Users...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
     }
 
     public void setupSwipeContainer(View rootView) {
@@ -137,18 +126,18 @@ public class RecyclerViewFragment extends Fragment {
     }
 
     public void loadJSONfromFirstPage() {
-        Log.d("VadmanLog", "loadJSONfromFirstPage");
+        Log.d(TAG, "loadJSONfromFirstPage");
 
         try {
             Client client = new Client();
             apiService = Client.getClient().create(Service.class);
-            Log.d("VadmanLog", "createClient");
+            Log.d(TAG, "createClient");
             Call<ItemResponse> call = apiService.getItems(new String[]{LANGUAGE, LOCATION}, currentPage, PER_PAGE);
-            Log.d("VadmanLog", "query");
+            Log.d(TAG, "query");
             call.enqueue(new Callback<ItemResponse>() {
                 @Override
                 public void onResponse(Call<ItemResponse> call, Response<ItemResponse> response) {
-                    Log.d("VadmanLog", "response");
+                    Log.d(TAG, "response");
 
                     if (response.body() != null) {
                         List<Item> items = response.body().getItems();
@@ -160,11 +149,11 @@ public class RecyclerViewFragment extends Fragment {
 
                         if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
                         else isLastPage = true;
-                        pd.hide();
+                        progressDialog.hide();
 
                     } else {
                         Toast.makeText(getActivity(), "Error body response loadJSONfromFirstPage", Toast.LENGTH_SHORT).show();
-                        pd.hide();
+                        progressDialog.hide();
                     }
 
 
@@ -175,7 +164,7 @@ public class RecyclerViewFragment extends Fragment {
                     Log.d("Error", t.getMessage());
                     Toast.makeText(getActivity(), "Error Fetching Data!", Toast.LENGTH_SHORT).show();
                     diconected.setVisibility(View.VISIBLE);
-                    pd.hide();
+                    progressDialog.hide();
                     Log.d("VadmanTagJSON", "loadJSONfromFirstPage: onFailure");
 
 
@@ -321,7 +310,7 @@ public class RecyclerViewFragment extends Fragment {
         LANGUAGE = language;
 
     }
-        //    private void saveOnSharedPreference() {
+    //    private void saveOnSharedPreference() {
 //        String key = "Key";
 //        SharedPreferences mPrefs = this.getActivity().getSharedPreferences("MyPREFERENCES", Context.MODE_PRIVATE);
 ////        SharedPreferences pref2 = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -341,21 +330,20 @@ public class RecyclerViewFragment extends Fragment {
 //    }
 
 
-
-        //    public List<Item> loadSharedPreferences() {
-        //        List<Item> savedList;
-        //        SharedPreferences pref2 = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        //        Gson gson = new Gson();
-        //        String json = pref2.getString("Key", "");
-        //        if (json.isEmpty()) {
-        //            savedList = new ArrayList<Item>();
-        //        } else {
-        //            Type type = new TypeToken<List<Item>>() {
-        //            }.getType();
-        //            savedList = gson.fromJson(json, type);
-        //        }
-        //        return savedList;
-        //    }
+    //    public List<Item> loadSharedPreferences() {
+    //        List<Item> savedList;
+    //        SharedPreferences pref2 = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    //        Gson gson = new Gson();
+    //        String json = pref2.getString("Key", "");
+    //        if (json.isEmpty()) {
+    //            savedList = new ArrayList<Item>();
+    //        } else {
+    //            Type type = new TypeToken<List<Item>>() {
+    //            }.getType();
+    //            savedList = gson.fromJson(json, type);
+    //        }
+    //        return savedList;
+    //    }
 }
 
 
