@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.vadman_pc.githubclient.controller.DetailActivity;
 import com.example.vadman_pc.githubclient.model.Item;
 import com.squareup.picasso.Picasso;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String TAG = PaginationAdapter.class.getSimpleName();
     private static final int ITEM = 0;
     private static final int LOADING = 1;
 
@@ -43,19 +46,22 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         RecyclerView.ViewHolder viewHolder = null;
-        Log.d("VadmanLog", "createViewHolder");
+        Log.d(TAG, "createViewHolder");
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+
         switch (viewType) {
             case ITEM:
-                Log.d("VadmanLog", "createViewHolder ITEM");
+                Log.d(TAG, "createViewHolder ITEM");
                 viewHolder = getViewHolder(viewGroup, inflater);
                 break;
+
             case LOADING:
-                Log.d("VadmanLog", "createViewHolder LOADING");
+                Log.d(TAG, "createViewHolder LOADING");
                 View v2 = inflater.inflate(R.layout.item_progress, viewGroup, false);
                 viewHolder = new LoadingViewHolder(v2);
                 break;
         }
+
         return viewHolder;
     }
 
@@ -74,12 +80,14 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         switch (getItemViewType(position)) {
             case ITEM:
                 final FilledViewHolder filledViewHolder = (FilledViewHolder) holder;
-                Log.d("VadmanLog", "puting DAta Inside");
-                filledViewHolder.title.setText(items.get(position).getLogin());
-                filledViewHolder.gitHub_link1.setText(items.get(position).getHtmlUrl());
-                Log.d("VadmanLog", "Picasso");
+
+                Log.d(TAG, "puting DAta Inside");
+                filledViewHolder.title.setText(item.getLogin());
+                filledViewHolder.gitHubLink.setText(item.getHtmlUrl());
+
+                Log.d(TAG, "Picasso");
                 Picasso.with(context)
-                        .load(items.get(position).getAvatarUrl())
+                        .load(item.getAvatarUrl())
                         .placeholder(R.drawable.load)
                         .into(filledViewHolder.imageView);
 
@@ -90,7 +98,6 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 break;
 
         }
-
 
     }
 
@@ -158,23 +165,22 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return items.get(position);
     }
 
-    public void  setFilter(List<Item> newList) {
-
+    public void setFilter(List<Item> newList) {
         items = new ArrayList<>();
         items.addAll(newList);
-        notifyDataSetChanged();
 
+        notifyDataSetChanged();
     }
 
     private class FilledViewHolder extends RecyclerView.ViewHolder {
         private TextView title;
-        private TextView gitHub_link1;
+        private TextView gitHubLink;
         private ImageView imageView;
 
-        public FilledViewHolder(View v1) {
-            super(v1);
+        public FilledViewHolder(View view) {
+            super(view);
             title = (TextView) itemView.findViewById(R.id.title);
-            gitHub_link1 = (TextView) itemView.findViewById(R.id.gitHub_link1);
+            gitHubLink = (TextView) itemView.findViewById(R.id.gitHub_link1);
             imageView = (ImageView) itemView.findViewById(R.id.cover);
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -184,11 +190,13 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     if (pos != RecyclerView.NO_POSITION) {
                         Item clikedDataItem = items.get(pos);
                         Intent intent = new Intent(context, DetailActivity.class);
-                        intent.putExtra("login", items.get(pos).getLogin());
-                        intent.putExtra("html_url", items.get(pos).getHtmlUrl());
-                        intent.putExtra("avatar_url", items.get(pos).getAvatarUrl());
+                        intent.putExtra(DetailActivity.LOGIN_KEY, items.get(pos).getLogin());
+                        intent.putExtra(DetailActivity.HTML_URL_KEY, items.get(pos).getHtmlUrl());
+                        intent.putExtra(DetailActivity.AVATAR_URL_KEY, items.get(pos).getAvatarUrl());
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
                         context.startActivity(intent);
+
                         Toast.makeText(view.getContext(), "You clicked " + clikedDataItem.getLogin(), Toast.LENGTH_SHORT).show();
 
                     }
@@ -198,9 +206,9 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private class LoadingViewHolder extends RecyclerView.ViewHolder {
-        public LoadingViewHolder(View v2) {
-            super(v2);
-            Log.d("VadmanLog", "inside LoadingViewHolder ");
+        public LoadingViewHolder(View view) {
+            super(view);
+            Log.d(TAG, "inside LoadingViewHolder ");
         }
     }
 

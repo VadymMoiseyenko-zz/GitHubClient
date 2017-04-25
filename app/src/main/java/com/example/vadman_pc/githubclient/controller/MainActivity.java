@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+
 import com.example.vadman_pc.githubclient.MainFragment;
 import com.example.vadman_pc.githubclient.R;
 import com.example.vadman_pc.githubclient.RecyclerViewFragment;
@@ -20,17 +21,15 @@ import com.example.vadman_pc.githubclient.ViewPagerAdapter;
 
 
 public class MainActivity extends AppCompatActivity implements MainFragment.OnNameSetListener {
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private ViewPagerAdapter viewPagerAdapter;
+    private FloatingActionButton fab;
+    private Toolbar mainToolbar;
 
-
-    TabLayout tabLayout;
-    ViewPager viewPager;
-    ViewPagerAdapter viewPagerAdapter;
-
-    FloatingActionButton fab;
-    boolean isFirst;
-    Toolbar mainToolbar;
     private String textForSearching;
-    int tempPosition;
+    private boolean isFirst;
+    private int tempPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,10 +39,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
         initViews();
     }
 
-
     private void initViews() {
         mainToolbar = (Toolbar) findViewById(R.id.my_toolBar);
         setSupportActionBar(mainToolbar);
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
@@ -51,23 +50,16 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN); //it hide soft   Keyboard when  app start
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-
         viewPagerAdapter.addFragments(new MainFragment(), "Home");
-
-
-
         viewPagerAdapter.addFragments(new RecyclerViewFragment(), "List");
 
-
-
-                viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//                Toast.makeText(getApplication(), "onPageScrolled" + position, LENGTH_SHORT).show();
                 if (tempPosition == 1) {
-                    ((MainFragment)viewPagerAdapter.getItem(0)).onSearch();
+                    ((MainFragment) viewPagerAdapter.getItem(0)).onSearch();
                 }
-                Log.d("VadmanTagPageScrolled", "position " + position +" positionOffset " + positionOffset + " positionOffsetPixels" + positionOffsetPixels);
+                Log.d("VadmanTagPageScrolled", "position " + position + " positionOffset " + positionOffset + " positionOffsetPixels" + positionOffsetPixels);
             }
 
             @Override
@@ -91,13 +83,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
             @Override
             public void onClick(View view) {
                 if (tempPosition == 0) {
-                    ((MainFragment)viewPagerAdapter.getItem(0)).onSearch();
+                    ((MainFragment) viewPagerAdapter.getItem(0)).onSearch();
                 }
             }
         });
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -113,28 +104,28 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnNa
             @Override
             public boolean onQueryTextChange(String newText) {
                 textForSearching = newText;
-                ((RecyclerViewFragment)viewPagerAdapter.getItem(1)).searchingItems(textForSearching);
+                ((RecyclerViewFragment) viewPagerAdapter.getItem(1)).searchingItems(textForSearching);
 
                 return true;
             }
         });
+
         return true;
     }
-
 
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        viewPager.setCurrentItem(1,true);
+        viewPager.setCurrentItem(1, true);
     }
-
 
 
     @Override
     public void setInfoForSearch(String location, String language) {
-        ((RecyclerViewFragment)viewPagerAdapter.getItem(1)).updateInfo(location,language);
-        ((RecyclerViewFragment)viewPagerAdapter.getItem(1)).refreshItems();
-        viewPager.setCurrentItem(1,true);
+        ((RecyclerViewFragment) viewPagerAdapter.getItem(1)).updateInfo(location, language);
+        ((RecyclerViewFragment) viewPagerAdapter.getItem(1)).refreshItems();
+
+        viewPager.setCurrentItem(1, true);
     }
 }
